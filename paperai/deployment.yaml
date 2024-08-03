@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperai-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperai
+  template:
+    metadata:
+      labels:
+        app: paperai
+    spec:
+      containers:
+      - name: paperai
+        image: <your-docker-registry>/paperai:<tag> # Replace with your actual image
+        imagePullPolicy: Always # or IfNotPresent if you prefer local images
+        ports:
+        - containerPort: 8080 # or the port your app runs on. Adjust if needed.
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        # Example of environment variables required for paperai to run.  These need to be configured as necessary.
+        - name: PAPERAI_DATA_DIR
+          value: "/data"
+
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+      volumes:
+      - name: data-volume # This requires a persistent volume claim to be defined separately.
+        persistentVolumeClaim:
+          claimName: paperai-pvc # replace with your pvc
+--- # Separate manifest for service
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperai-service
+spec:
+  selector:
+    app: paperai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer # Or NodePort, or ClusterIP depending on your deployment scenario
