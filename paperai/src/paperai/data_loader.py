@@ -1,50 +1,33 @@
-```python
-import logging
+# paperai/src/paperai/data_loader.py
 
-# Initialize logger
-logger = logging.getLogger(__name__)
+import os
+from typing import Optional, Tuple
 
-class DataLoader:
-    def __init__(self):
-        pass
-
-    def load_data(self, data):
-        """Loads and preprocesses data, handling null and empty strings."""
-        processed_data = []
-        for item in data:
-            processed_item = {}
-            for key, value in item.items():
-                if value is None:
-                    logger.warning(f"Null value encountered for key: {key}. Replacing with empty string.")
-                    processed_item[key] = ""  # Replace null with empty string
-                elif isinstance(value, str) and value.strip() == "":
-                    logger.warning(f"Empty string encountered for key: {key}. Replacing with empty string.")
-                    processed_item[key] = ""  # Replace empty string with empty string
-                else:
-                    processed_item[key] = value
-            processed_data.append(processed_item)
-
-        return processed_data
+from paperai.pdf_handler import read_pdf
 
 
-# Example usage (you might have this in a separate script or as part of cli.py)
-if __name__ == '__main__':
-    # Configure logging
-    logging.basicConfig(level=logging.WARNING)
+def load_document(file_path: str) -> Tuple[Optional[str], Optional[dict]]:
+    """Loads a document from the given file path.
 
-    # Create dummy data with null and empty strings
-    dummy_data = [
-        {"title": "Paper 1", "author": "John Doe", "abstract": None},
-        {"title": "Paper 2", "author": "", "abstract": "This is an abstract."},
-        {"title": "Paper 3", "author": "Jane Smith", "abstract": "  "},
-        {"title": "Paper 4", "author": "", "abstract": None},
-        {"title": "Paper 5", "author": "Peter Jones", "abstract": "Valid abstract"}
-    ]
+    Args:
+        file_path: The path to the document file.
 
-    # Load the data
-    data_loader = DataLoader()
-    loaded_data = data_loader.load_data(dummy_data)
+    Returns:
+        A tuple containing the text content of the document and its metadata.
+        Returns (None, None) if the file cannot be read or is not supported.
+    """
+    _, file_extension = os.path.splitext(file_path)
 
-    # Print the processed data
-    print(loaded_data)
-```
+    if file_extension.lower() == ".pdf":
+        return read_pdf(file_path)
+    elif file_extension.lower() == ".txt":
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                text = f.read()
+                return text, {}
+        except Exception as e:
+            print(f"Error reading TXT file {file_path}: {e}")
+            return None, None
+    else:
+        print(f"Unsupported file type: {file_extension}")
+        return None, None
