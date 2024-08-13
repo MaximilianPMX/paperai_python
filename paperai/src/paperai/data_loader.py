@@ -1,37 +1,62 @@
 import json
+from typing import List, Dict
+from paperai.src.paperai.models import Paper, Author, Reference  # Import the dataclasses
+
 
 class DataLoader:
-    def load_data_from_json(self, file_path):
-        """Loads data from a JSON file.
+    def __init__(self):
+        pass
 
-        Args:
-            file_path (str): The path to the JSON file.
-
-        Returns:
-            list: A list of dictionaries representing the data.
-        """
-        with open(file_path, 'r') as f:
-            try:
+    def load_papers_from_json(self, json_file: str) -> List[Paper]:
+        """Loads paper data from a JSON file and returns a list of Paper objects."""
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            except json.JSONDecodeError:
-                return [] # Handles empty or invalid JSON files gracefully
-        
-        # Validate data structure
-        for item in data:
-            if not isinstance(item, dict):
-                raise TypeError("Each item in the JSON file must be a dictionary.")
-            if not all(key in item for key in ('id', 'title', 'abstract', 'authors', 'doi')):
-                raise KeyError("Required key missing.")
-            if not isinstance(item['abstract'], str):
-                raise TypeError("Abstract must be a string.")
-            if not isinstance(item['id'], str):
-                 raise TypeError("ID must be a string.")
-            if not isinstance(item['title'], str):
-                 raise TypeError("Title must be a string.")
-            if not isinstance(item['authors'], list):
-                 raise TypeError("Authors must be a list.")
-            if not isinstance(item['doi'], str):
-                 raise TypeError("DOI must be a string.")
 
+            papers = []
+            for item in data:
+                authors = [Author(**author) for author in item.get('authors', [])] #convert author dicts to Author objects
+                references = [Reference(**ref) for ref in item.get('references', [])] #convert reference dicts to Reference objects
 
-        return data
+                paper = Paper(
+                    title=item['title'],
+                    abstract=item['abstract'],
+                    authors=authors,
+                    sections=item['sections'],
+                    references=references,
+                    doi=item.get('doi'),
+                    publication_date=item.get('publication_date'),
+                    url=item.get('url')
+                )
+                papers.append(paper)
+
+            return papers
+        except FileNotFoundError:
+            print(f"Error: File not found: {json_file}")
+            return []
+        except json.JSONDecodeError:
+            print(f"Error: Invalid JSON format in: {json_file}")
+            return []
+        except KeyError as e:
+            print(f"Error: Missing key in JSON data: {e}")
+            return []
+        except Exception as e:
+             print(f"An unexpected error occurred: {e}")
+             return []
+
+    def load_paper_from_dict(self, paper_data: Dict) -> Paper:
+         """Loads paper data from a dictionary and returns a Paper object"""
+         authors = [Author(**author) for author in paper_data.get('authors', [])] #convert author dicts to Author objects
+         references = [Reference(**ref) for ref in paper_data.get('references', [])] #convert reference dicts to Reference objects
+
+         paper = Paper(
+             title=paper_data['title'],
+             abstract=paper_data['abstract'],
+             authors=authors,
+             sections=paper_data['sections'],
+             references=references,
+             doi=paper_data.get('doi'),
+             publication_date=paper_data.get('publication_date'),
+             url=paper_data.get('url')
+         )
+         return paper
