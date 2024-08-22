@@ -1,9 +1,32 @@
 # Exclude unnecessary files and directories from the Docker image
-__pycache__
-*.pyc
-*.log
-.git
-.gitignore
-README.md
-.env
-/paperai/tests
+
+# Private documents
+private_doc/
+
+# Documentation files
+docs/
+
+# Tests
+tests/
+
+# Python virtual environment
+.venv/
+
+# Poetry environment
+virtualenvs/
+
+# pycache
+__pycache__/
+
+# VS Code files
+.vscode/
+
+# IntelliJ IDEA files
+.idea/
+
+# Editor backups
+*~
+.*
+
+# Docker related files
+.dockerignore
