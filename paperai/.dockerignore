@@ -1,4 +1,9 @@
-**/__pycache__
+# Exclude unnecessary files and directories from the Docker image
+__pycache__
 *.pyc
-*.pyo
-private_doc/
+*.log
+.git
+.gitignore
+README.md
+.env
+/paperai/tests
