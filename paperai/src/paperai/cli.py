@@ -1,23 +1,16 @@
-import argparse
-import os
-from paperai.data_loader import load_papers
-from paperai.data_processor import process_papers
-from paperai.report_generator import generate_report
+import click
 
-def main():
-    parser = argparse.ArgumentParser(description='Process and analyze scientific papers.')
-    parser.add_argument('data_dir', help='Path to the directory containing paper data.')
-    args = parser.parse_args()
+from paperai.data_loader import load_data
+from paperai.data_processor import process_data
 
-    data_dir = args.data_dir
-    if not os.path.isdir(data_dir):
-        print(f"Error: {data_dir} is not a valid directory.")
-        return
 
-    papers = load_papers(data_dir)
-    processed_papers = process_papers(papers)
-    report = generate_report(processed_papers)
-    print(report)
+@click.command()
+@click.option('--data-path', required=True, help='Path to the data file.')
+@click.option('--report', is_flag=True, default=False, help='Enable/disable report generation.')
+def main(data_path, report):
+    """A command-line tool for processing and analyzing scientific papers."""
+    data = load_data(data_path)
+    process_data(data, generate_report=report)
 
 
 if __name__ == '__main__':
