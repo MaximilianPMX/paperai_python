@@ -1,13 +1,22 @@
 import click
-from .data_loader import load_papers
-from .data_processor import process_papers
+from paperai.data_loader import load_data
+from paperai.data_processor import process_data
 
-@click.command()
-@click.option('--data-path', default='papers.json', help='Path to the JSON file containing paper data.')
-def cli(data_path):
-    """A command-line tool for processing scientific papers."""
-    papers = load_papers(data_path)
-    process_papers(papers)
+@click.group()
+def cli():
+    pass
+
+@cli.command()
+@click.argument('input_file', type=click.Path(exists=True))
+def process(input_file):
+    """Process data from a file."""
+    try:
+        data = load_data(input_file)
+        processed_data = process_data(data)
+        click.echo(processed_data)
+    except Exception as e:
+        click.echo(f"Error processing file: {e}", err=True)
+
 
 if __name__ == '__main__':
     cli()
