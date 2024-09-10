@@ -1,0 +1,21 @@
+# Poetry lock file. DO NOT EDIT!
+[[package]]
+name = "argparse"
+version = "1.4.0"
+description = "Python argument parsing library"
+
+[package.dependencies]
+
+[[package]]
+name = "pytest"
+version = "6.2.4"
+description = "pytest: simple powerful testing with Python"
+
+[package.dependencies]
+
+[[package]]
+name = "requests"
+version = "2.25.1"
+description = "Python HTTP for Humans."
+
+[package.dependencies]
